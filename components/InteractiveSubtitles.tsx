@@ -24,17 +24,15 @@ export default function InteractiveSubtitles({
   }, [currentTime, subtitles]);
 
   if (!currentSubtitle) {
-    return <div className="h-32" />;
+    return null;
   }
 
   const renderClickableText = (text: string, words: Word[]) => {
-    // Split text into words and map to Word objects
     const textWords = text.split(/\s+/);
 
     return (
       <div className="flex flex-wrap gap-2 justify-center">
         {textWords.map((textWord, index) => {
-          // Find matching word object (case-insensitive, remove punctuation)
           const cleanWord = textWord.replace(/[.,!?;:]/, '').toLowerCase();
           const wordObj = words.find(
             (w) => w.word.toLowerCase() === cleanWord
@@ -45,7 +43,7 @@ export default function InteractiveSubtitles({
               <button
                 key={index}
                 onClick={() => onWordClick(wordObj)}
-                className="text-white hover:text-yellow-300 hover:bg-white/10 px-2 py-1 rounded transition-all cursor-pointer underline decoration-dotted underline-offset-4"
+                className="border-2 border-[#ccff00] bg-[#ccff00] text-black px-3 py-2 font-black uppercase hover:bg-[#ff00ff] hover:border-[#ff00ff] transition-all cursor-pointer text-sm"
               >
                 {textWord}
               </button>
@@ -53,7 +51,7 @@ export default function InteractiveSubtitles({
           }
 
           return (
-            <span key={index} className="text-white px-1">
+            <span key={index} className="text-white px-1 font-bold text-sm">
               {textWord}
             </span>
           );
@@ -63,15 +61,15 @@ export default function InteractiveSubtitles({
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto mt-6 min-h-32">
-      <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 backdrop-blur-md rounded-lg p-6 border border-white/10">
+    <div className="absolute bottom-24 left-0 right-0 z-20 flex items-center justify-center px-4">
+      <div className="neo-card border-4 border-black bg-black/90 p-4 max-w-sm w-full backdrop-blur-sm">
         {/* Target language (clickable) */}
-        <div className="text-2xl font-medium mb-3">
+        <div className="text-lg font-black mb-3 tracking-tight">
           {renderClickableText(currentSubtitle.text_target, currentSubtitle.words)}
         </div>
 
         {/* Native language (translation) */}
-        <div className="text-lg text-gray-300 text-center">
+        <div className="text-sm font-bold text-[#00ffff] text-center border-t-2 border-[#ccff00] pt-2">
           {currentSubtitle.text_native}
         </div>
       </div>
