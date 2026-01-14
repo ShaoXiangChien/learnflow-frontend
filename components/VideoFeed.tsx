@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Video } from '@/types';
-import { getVideos } from '@/lib/api';
+import { getVideos, getQuiz } from '@/lib/api';
 import VideoCard from './VideoCard';
 import QuizModal from './QuizModal';
 import FlashcardCollection from './FlashcardCollection';
@@ -97,20 +97,8 @@ export default function VideoFeed() {
 
   const loadQuizForVideo = async (videoId: string) => {
     try {
-      // For now, we'll create a mock quiz
-      // Later, this will load from backend or local files
-      const mockQuiz = {
-        video_id: videoId,
-        questions: [
-          {
-            question: 'What was the main topic of this video?',
-            options: ['Option A', 'Option B', 'Option C', 'Option D'],
-            correct_answer: 0,
-            explanation: 'This is the correct answer because...',
-          },
-        ],
-      };
-      setCurrentQuiz(mockQuiz);
+      const quiz = await getQuiz(videoId);
+      setCurrentQuiz(quiz);
       setShowQuiz(true);
     } catch (error) {
       console.error('Failed to load quiz:', error);

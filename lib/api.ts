@@ -18,6 +18,14 @@ export async function getVideo(id: string): Promise<Video> {
   return response.json();
 }
 
+export async function getQuiz(videoId: string): Promise<Quiz> {
+  const response = await fetch(`${API_BASE_URL}/api/videos/${videoId}/quiz`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch quiz');
+  }
+  return response.json();
+}
+
 export async function generateQuiz(videoId: string, transcript: string, language: string): Promise<Quiz> {
   const response = await fetch(`${API_BASE_URL}/api/quiz/generate`, {
     method: 'POST',
