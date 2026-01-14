@@ -139,8 +139,6 @@ export default function VideoFeed() {
     );
   }
 
-  const currentVideo = videos[currentIndex];
-
   return (
     <div
       ref={containerRef}
@@ -161,7 +159,7 @@ export default function VideoFeed() {
         </div>
       </header>
 
-      {/* Video Cards Stack */}
+      {/* Video Cards Stack - Full height */}
       <div className="relative w-full h-full pt-20 pb-24 flex items-center justify-center">
         {videos.map((video, index) => {
           const offset = index - currentIndex;
@@ -172,7 +170,7 @@ export default function VideoFeed() {
           return (
             <div
               key={video.id}
-              className={`absolute w-full max-w-md transition-all duration-500 ease-out ${
+              className={`absolute w-full h-full max-w-md transition-all duration-500 ease-out ${
                 offset === 0 ? 'card-enter z-30 scale-100' : 'z-20 scale-95 opacity-50'
               }`}
               style={{
@@ -220,29 +218,6 @@ export default function VideoFeed() {
         >
           NEXT ↓
         </button>
-      </div>
-
-      {/* Video Info Overlay */}
-      <div className="absolute bottom-32 left-0 right-0 z-30 flex items-center justify-center">
-        <div className="neo-card border-4 border-black bg-white text-black max-w-md w-full mx-4 p-6">
-          <h2 className="text-2xl font-black uppercase mb-3 border-b-4 border-black pb-2">
-            {currentVideo.title}
-          </h2>
-          {currentVideo.description && (
-            <p className="text-sm font-bold mb-4">{currentVideo.description}</p>
-          )}
-          <div className="flex gap-2 flex-wrap">
-            <span className="bg-black text-[#ccff00] text-xs px-3 py-2 font-black uppercase border-2 border-black">
-              {currentVideo.language.toUpperCase()}
-            </span>
-            <span className="bg-black text-[#ff00ff] text-xs px-3 py-2 font-black uppercase border-2 border-black">
-              Level: {currentVideo.difficulty}
-            </span>
-            <span className="bg-black text-[#00ffff] text-xs px-3 py-2 font-black uppercase border-2 border-black">
-              {currentVideo.duration}s
-            </span>
-          </div>
-        </div>
       </div>
 
       {/* Quiz Modal */}
