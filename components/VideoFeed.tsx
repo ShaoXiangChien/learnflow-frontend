@@ -142,12 +142,12 @@ export default function VideoFeed() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen bg-black overflow-hidden"
+      className="relative w-full h-screen bg-black overflow-hidden flex flex-col"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-40 border-b-4 border-[#ccff00] bg-black/80 backdrop-blur-md">
+      <header className="flex-shrink-0 border-b-4 border-[#ccff00] bg-black/80 backdrop-blur-md">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-black uppercase tracking-tighter">
             <span className="text-white">LEARN</span>
@@ -159,8 +159,8 @@ export default function VideoFeed() {
         </div>
       </header>
 
-      {/* Video Cards Stack - Full height */}
-      <div className="relative w-full h-full pt-20 flex items-center justify-center">
+      {/* Video Cards Stack - Flexible container */}
+      <div className="relative flex-1 w-full flex items-center justify-center overflow-hidden">
         {videos.map((video, index) => {
           const offset = index - currentIndex;
           const isVisible = offset >= 0 && offset < 3;
@@ -184,7 +184,7 @@ export default function VideoFeed() {
       </div>
 
       {/* Swipe hint - subtle */}
-      <div className="absolute bottom-8 left-0 right-0 z-40 flex items-center justify-center">
+      <div className="flex-shrink-0 flex items-center justify-center py-4">
         <p className="text-xs font-black uppercase text-gray-500">
           Swipe or use arrow keys
         </p>
