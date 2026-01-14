@@ -43,7 +43,7 @@ export default function InteractiveSubtitles({
               <button
                 key={index}
                 onClick={() => onWordClick(wordObj)}
-                className="border-2 border-[#ccff00] bg-[#ccff00] text-black px-3 py-2 font-black uppercase hover:bg-[#ff00ff] hover:border-[#ff00ff] transition-all cursor-pointer text-sm"
+                className="border-2 border-[#ccff00] bg-[#ccff00] text-black px-2 py-1 font-black uppercase hover:bg-[#ff00ff] hover:border-[#ff00ff] transition-all cursor-pointer text-xs sm:text-sm"
               >
                 {textWord}
               </button>
@@ -51,7 +51,7 @@ export default function InteractiveSubtitles({
           }
 
           return (
-            <span key={index} className="text-white px-1 font-bold text-sm">
+            <span key={index} className="text-white px-1 font-bold text-xs sm:text-sm">
               {textWord}
             </span>
           );
@@ -61,15 +61,15 @@ export default function InteractiveSubtitles({
   };
 
   return (
-    <div className="absolute bottom-24 left-0 right-0 z-20 flex items-center justify-center px-4">
-      <div className="neo-card border-4 border-black bg-black/90 p-4 max-w-sm w-full backdrop-blur-sm">
+    <div className="absolute bottom-0 left-0 right-0 z-20 w-full bg-gradient-to-t from-black/85 via-black/70 to-transparent p-4">
+      <div className="space-y-2">
         {/* Target language (clickable) */}
-        <div className="text-lg font-black mb-3 tracking-tight">
+        <div className="text-sm font-black tracking-tight">
           {renderClickableText(currentSubtitle.text_target, currentSubtitle.words)}
         </div>
 
         {/* Native language (translation) */}
-        <div className="text-sm font-bold text-[#00ffff] text-center border-t-2 border-[#ccff00] pt-2">
+        <div className="text-xs font-bold text-[#00ffff] text-center">
           {currentSubtitle.text_native}
         </div>
       </div>

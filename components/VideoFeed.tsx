@@ -160,7 +160,7 @@ export default function VideoFeed() {
       </header>
 
       {/* Video Cards Stack - Full height */}
-      <div className="relative w-full h-full pt-20 pb-24 flex items-center justify-center">
+      <div className="relative w-full h-full pt-20 flex items-center justify-center">
         {videos.map((video, index) => {
           const offset = index - currentIndex;
           const isVisible = offset >= 0 && offset < 3;
@@ -183,41 +183,11 @@ export default function VideoFeed() {
         })}
       </div>
 
-      {/* Navigation Hints */}
-      <div className="absolute bottom-6 left-0 right-0 z-40 flex items-center justify-center gap-8">
-        <button
-          onClick={goToPrevious}
-          disabled={currentIndex === 0}
-          className="neo-button border-4 border-[#ccff00] bg-black text-[#ccff00] px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          ↑ PREV
-        </button>
-
-        <div className="text-center">
-          <p className="text-xs font-black uppercase text-gray-400 mb-2">
-            Swipe or use arrow keys
-          </p>
-          <div className="flex gap-2">
-            {videos.map((_, index) => (
-              <div
-                key={index}
-                className={`h-2 transition-all ${
-                  index === currentIndex
-                    ? 'w-8 bg-[#ccff00]'
-                    : 'w-2 bg-gray-600'
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <button
-          onClick={goToNext}
-          disabled={currentIndex === videos.length - 1}
-          className="neo-button border-4 border-[#ccff00] bg-black text-[#ccff00] px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          NEXT ↓
-        </button>
+      {/* Swipe hint - subtle */}
+      <div className="absolute bottom-8 left-0 right-0 z-40 flex items-center justify-center">
+        <p className="text-xs font-black uppercase text-gray-500">
+          Swipe or use arrow keys
+        </p>
       </div>
 
       {/* Quiz Modal */}

@@ -27,7 +27,24 @@ export default function VideoCard({ video, isActive }: VideoCardProps) {
           onEnded={() => {}}
         />
 
-        {/* Interactive Subtitles - Overlaid on video */}
+        {/* Title Overlay - Top with gradient */}
+        <div className="absolute top-0 left-0 right-0 z-20 bg-gradient-to-b from-black/80 via-black/40 to-transparent p-4 pb-8">
+          <div className="flex items-start justify-between gap-3">
+            <h2 className="text-2xl font-black uppercase text-white flex-1 leading-tight">
+              {video.title}
+            </h2>
+            {showDetails && (
+              <button
+                onClick={() => setShowDetails(false)}
+                className="flex-shrink-0 text-3xl font-black text-[#ccff00] hover:text-[#ff00ff] transition-colors"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Interactive Subtitles - Bottom of video */}
         {isActive && (
           <InteractiveSubtitles
             subtitles={video.subtitles}
@@ -37,30 +54,9 @@ export default function VideoCard({ video, isActive }: VideoCardProps) {
         )}
       </div>
 
-      {/* Bottom Info Bar - Like IG Reels */}
-      <div className="bg-black border-t-4 border-[#ccff00] p-4 space-y-3">
-        {/* Title and quick info */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <h2 className="text-xl font-black uppercase truncate text-white">
-              {video.title}
-            </h2>
-            {video.description && (
-              <p className="text-xs font-bold text-gray-300 mt-1 line-clamp-2">
-                {video.description}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            className="flex-shrink-0 border-2 border-[#ccff00] bg-black text-[#ccff00] px-3 py-2 font-black text-xs uppercase hover:bg-[#ccff00] hover:text-black transition-all"
-          >
-            {showDetails ? '✕' : 'ℹ'}
-          </button>
-        </div>
-
-        {/* Language and level badges */}
-        <div className="flex gap-2 flex-wrap">
+      {/* Bottom Info Bar - Language, Level, Duration */}
+      <div className="bg-black border-t-4 border-[#ccff00] p-3 flex items-center justify-between gap-2">
+        <div className="flex gap-2 flex-wrap flex-1">
           <span className="bg-black text-[#ccff00] text-xs px-3 py-1 font-black uppercase border-2 border-[#ccff00]">
             {video.language.toUpperCase()}
           </span>
@@ -71,9 +67,17 @@ export default function VideoCard({ video, isActive }: VideoCardProps) {
             {video.duration}s
           </span>
         </div>
+        
+        {/* Info button */}
+        <button
+          onClick={() => setShowDetails(!showDetails)}
+          className="flex-shrink-0 border-2 border-[#ccff00] bg-black text-[#ccff00] px-3 py-1 font-black text-sm uppercase hover:bg-[#ccff00] hover:text-black transition-all"
+        >
+          ℹ
+        </button>
       </div>
 
-      {/* Details Modal - Half-screen or Popup */}
+      {/* Details Modal - Full screen overlay */}
       {showDetails && (
         <div className="absolute inset-0 z-50 bg-black/95 backdrop-blur-sm flex flex-col">
           {/* Close button */}
