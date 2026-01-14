@@ -5,7 +5,6 @@ import { Video, Word } from '@/types';
 import VideoPlayer from './VideoPlayer';
 import InteractiveSubtitles from './InteractiveSubtitles';
 import VocabularyCard from './VocabularyCard';
-import FlashcardCollection from './FlashcardCollection';
 
 interface VideoCardProps {
   video: Video;
@@ -119,9 +118,6 @@ export default function VideoCard({ video, isActive }: VideoCardProps) {
 
       {/* Vocabulary Card Modal */}
       <VocabularyCard word={selectedWord} onClose={() => setSelectedWord(null)} />
-
-      {/* Flashcard Collection */}
-      <FlashcardCollection />
     </div>
   );
 }

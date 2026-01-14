@@ -5,6 +5,7 @@ import { Video } from '@/types';
 import { getVideos } from '@/lib/api';
 import VideoCard from './VideoCard';
 import QuizModal from './QuizModal';
+import FlashcardCollection from './FlashcardCollection';
 
 interface VideoWithQuiz extends Video {
   quiz?: any;
@@ -183,11 +184,9 @@ export default function VideoFeed() {
         })}
       </div>
 
-      {/* Swipe hint - subtle */}
-      <div className="flex-shrink-0 flex items-center justify-center py-4">
-        <p className="text-xs font-black uppercase text-gray-500">
-          Swipe or use arrow keys
-        </p>
+      {/* Flashcard Collection - Right side (desktop) */}
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
+        <FlashcardCollection />
       </div>
 
       {/* Quiz Modal */}
