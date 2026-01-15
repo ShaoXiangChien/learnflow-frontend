@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import VideoFeed from '@/components/VideoFeed';
-import ProductTour from '@/components/ProductTour';
+import InteractiveProductTour from '@/components/InteractiveProductTour';
 
 export default function TeaserPage() {
   const [showDemo, setShowDemo] = useState(false);
@@ -122,7 +122,7 @@ export default function TeaserPage() {
       <section className="py-20 px-4 border-t-4 border-[#ccff00]">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-black uppercase mb-12 text-[#ccff00]">How It Works</h2>
-          <ProductTour />
+          <InteractiveProductTour />
         </div>
       </section>
 
