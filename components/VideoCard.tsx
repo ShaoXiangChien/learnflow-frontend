@@ -51,6 +51,7 @@ export default function VideoCard({ video, isActive, onVideoEnded, onQuizClick }
             subtitles={video.subtitles}
             currentTime={currentTime}
             onWordClick={setSelectedWord}
+            language={video.language}
           />
         )}
       </div>

@@ -7,12 +7,14 @@ interface InteractiveSubtitlesProps {
   subtitles: Subtitle[];
   currentTime: number;
   onWordClick: (word: Word) => void;
+  language?: string;
 }
 
 export default function InteractiveSubtitles({
   subtitles,
   currentTime,
   onWordClick,
+  language = 'en',
 }: InteractiveSubtitlesProps) {
   const [currentSubtitle, setCurrentSubtitle] = useState<Subtitle | null>(null);
 
@@ -27,13 +29,25 @@ export default function InteractiveSubtitles({
     return null;
   }
 
+  // Check if language is CJK (Chinese, Japanese, Korean)
+  const isCJK = ['zh', 'ja', 'ko'].includes(language);
+
   const renderClickableText = (text: string, words: Word[]) => {
+    if (isCJK) {
+      return renderCJKText(text, words);
+    } else {
+      return renderSpaceDelimitedText(text, words);
+    }
+  };
+
+  // For space-delimited languages (English, Spanish, French, etc.)
+  const renderSpaceDelimitedText = (text: string, words: Word[]) => {
     const textWords = text.split(/\s+/);
 
     return (
       <div className="flex flex-wrap gap-2 justify-center">
         {textWords.map((textWord, index) => {
-          const cleanWord = textWord.replace(/[.,!?;:]/, '').toLowerCase();
+          const cleanWord = textWord.replace(/[.,!?;:()]/g, '').toLowerCase();
           const wordObj = words.find(
             (w) => w.word.toLowerCase() === cleanWord
           );
@@ -57,6 +71,62 @@ export default function InteractiveSubtitles({
             </span>
           );
         })}
+      </div>
+    );
+  };
+
+  // For CJK languages (Chinese, Japanese, Korean)
+  const renderCJKText = (text: string, words: Word[]) => {
+    // Sort words by length (longest first) to handle overlapping cases
+    const sortedWords = [...words].sort((a, b) => b.word.length - a.word.length);
+
+    let elements: (string | JSX.Element)[] = [];
+    let remaining = text;
+    let elementKey = 0;
+
+    while (remaining.length > 0) {
+      let found = false;
+
+      // Try to match each word from longest to shortest
+      for (const wordObj of sortedWords) {
+        if (remaining.startsWith(wordObj.word)) {
+          // Found a match
+          elements.push(
+            <button
+              key={elementKey++}
+              onClick={() => onWordClick(wordObj)}
+              className="border-2 border-[#ccff00] bg-[#ccff00] text-black px-1 py-0.5 font-black hover:bg-[#ff00ff] hover:border-[#ff00ff] transition-all cursor-pointer text-xs sm:text-sm inline-block"
+              data-interactive="true"
+            >
+              {wordObj.word}
+            </button>
+          );
+          remaining = remaining.slice(wordObj.word.length);
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        // No match found, add the first character as regular text
+        const char = remaining[0];
+        // Check if it's punctuation or special character
+        if (/[.,!?;:()（）、，。！？；：]/.test(char)) {
+          elements.push(char);
+        } else {
+          elements.push(
+            <span key={elementKey++} className="text-white font-bold text-xs sm:text-sm">
+              {char}
+            </span>
+          );
+        }
+        remaining = remaining.slice(1);
+      }
+    }
+
+    return (
+      <div className="flex flex-wrap gap-0.5 justify-center">
+        {elements}
       </div>
     );
   };
