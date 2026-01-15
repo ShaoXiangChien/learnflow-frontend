@@ -166,14 +166,21 @@ export default function VideoFeed() {
                 transform: `translateY(${offset * 20}px) scale(${1 - offset * 0.05})`,
               }}
             >
-              <VideoCard video={video} isActive={offset === 0} />
+              <VideoCard 
+                video={video} 
+                isActive={offset === 0}
+                onVideoEnded={offset === 0 ? goToNext : undefined}
+                onQuizClick={offset === 0 ? () => loadQuizForVideo(video.id) : undefined}
+              />
             </div>
           );
         })}
       </div>
 
-      {/* Flashcard Collection - Bottom right corner (visible on all screen sizes) */}
-      <FlashcardCollection />
+      {/* Flashcard Collection - Right side (desktop) */}
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-40 hidden lg:block">
+        <FlashcardCollection />
+      </div>
 
       {/* Quiz Modal */}
       {showQuiz && currentQuiz && (

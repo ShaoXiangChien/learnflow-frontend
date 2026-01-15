@@ -9,9 +9,11 @@ import VocabularyCard from './VocabularyCard';
 interface VideoCardProps {
   video: Video;
   isActive: boolean;
+  onVideoEnded?: () => void;
+  onQuizClick?: () => void;
 }
 
-export default function VideoCard({ video, isActive }: VideoCardProps) {
+export default function VideoCard({ video, isActive, onVideoEnded, onQuizClick }: VideoCardProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -23,7 +25,7 @@ export default function VideoCard({ video, isActive }: VideoCardProps) {
         <VideoPlayer
           video={video}
           onTimeUpdate={setCurrentTime}
-          onEnded={() => {}}
+          onEnded={onVideoEnded || (() => {})}
         />
 
         {/* Title Overlay - Top with gradient */}
@@ -66,6 +68,15 @@ export default function VideoCard({ video, isActive }: VideoCardProps) {
             {video.duration}s
           </span>
         </div>
+        
+        {/* Quiz button */}
+        <button
+          onClick={onQuizClick}
+          className="flex-shrink-0 border-2 border-[#ff00ff] bg-black text-[#ff00ff] px-3 py-1 font-black text-sm uppercase hover:bg-[#ff00ff] hover:text-black transition-all"
+          title="Take Quiz"
+        >
+          ?
+        </button>
         
         {/* Info button */}
         <button
