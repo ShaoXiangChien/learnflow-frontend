@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import VideoFeed from '@/components/VideoFeed';
+import ProductTour from '@/components/ProductTour';
 
 export default function TeaserPage() {
   const [showDemo, setShowDemo] = useState(false);
@@ -117,25 +118,11 @@ export default function TeaserPage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* How It Works - Interactive Tour */}
       <section className="py-20 px-4 border-t-4 border-[#ccff00]">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-black uppercase mb-12 text-[#ccff00]">How It Works</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[
-              { num: '1', title: 'Watch', desc: 'Pick any short-form video' },
-              { num: '2', title: 'Click', desc: 'Tap words for translations' },
-              { num: '3', title: 'Learn', desc: 'Build your vocabulary' },
-              { num: '4', title: 'Quiz', desc: 'Test your knowledge' },
-            ].map((step, idx) => (
-              <div key={idx} className="border-4 border-[#ccff00] bg-black p-6 text-center">
-                <div className="text-5xl font-black text-[#ff00ff] mb-3">{step.num}</div>
-                <h3 className="font-black uppercase text-[#ccff00] mb-2">{step.title}</h3>
-                <p className="text-sm font-bold text-gray-300">{step.desc}</p>
-              </div>
-            ))}
-          </div>
+          <ProductTour />
         </div>
       </section>
 
