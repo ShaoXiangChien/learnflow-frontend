@@ -1,5 +1,5 @@
-import VideoFeed from '@/components/VideoFeed';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return <VideoFeed />;
+  redirect('/teaser');
 }
