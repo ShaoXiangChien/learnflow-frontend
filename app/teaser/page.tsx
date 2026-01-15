@@ -26,15 +26,23 @@ export default function TeaserPage() {
     return <VideoFeed />;
   }
 
+  // Route for /demo path
+  if (typeof window !== 'undefined' && window.location.pathname === '/demo') {
+    return <VideoFeed />;
+  }
+
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-40 border-b-4 border-[#ccff00] bg-black/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-black uppercase tracking-tighter">
+          <button
+            onClick={() => window.location.href = '/'}
+            className="text-2xl font-black uppercase tracking-tighter hover:opacity-80 transition-opacity cursor-pointer"
+          >
             <span className="text-white">LEARN</span>
             <span className="text-[#ccff00]">FLOW</span>
-          </h1>
+          </button>
           <div className="flex gap-4">
             <button
               onClick={() => setShowWaitlist(true)}

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Word } from '@/types';
+import { useRouter } from 'next/navigation';
+import { Word, Video } from '@/types';
+import { getVideos } from '@/lib/api';
 
 interface TourStep {
   id: number;
@@ -11,7 +13,7 @@ interface TourStep {
   words: Word[];
 }
 
-const tourData: TourStep = {
+const defaultTourData: TourStep = {
   id: 1,
   title: 'Learn Spanish Through Real Videos',
   subtitle: 'Hola, ¿cómo estás? Me llamo Juan.',
@@ -65,6 +67,7 @@ const tourData: TourStep = {
 type TourState = 'idle' | 'playing' | 'word-selected' | 'flashcard-added' | 'quiz-shown' | 'completed';
 
 export default function InteractiveProductTour() {
+  const router = useRouter();
   const [tourState, setTourState] = useState<TourState>('idle');
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const [showWordCard, setShowWordCard] = useState(false);
@@ -73,6 +76,37 @@ export default function InteractiveProductTour() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [highlightedButton, setHighlightedButton] = useState<string | null>(null);
   const [quizAnswered, setQuizAnswered] = useState(false);
+  const [tourData, setTourData] = useState<TourStep>(defaultTourData);
+  const [loading, setLoading] = useState(true);
+
+  // Load first video data on mount
+  useEffect(() => {
+    const loadFirstVideo = async () => {
+      try {
+        const videos = await getVideos();
+        if (videos.length > 0) {
+          const firstVideo = videos[0];
+          // Get first subtitle if available
+          if (firstVideo.subtitles && firstVideo.subtitles.length > 0) {
+            const firstSubtitle = firstVideo.subtitles[0];
+            setTourData({
+              id: 1,
+              title: firstVideo.title,
+              subtitle: firstSubtitle.text_target,
+              subtitleTranslation: firstSubtitle.text_native,
+              words: firstSubtitle.words || [],
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load first video:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadFirstVideo();
+  }, []);
 
   // Get instruction text based on tour state
   const getInstruction = () => {
@@ -156,6 +190,16 @@ export default function InteractiveProductTour() {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-black border-4 border-[#ccff00] p-4 animate-pulse">
+          <p className="font-black uppercase text-[#ccff00]">Loading demo...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -351,7 +395,10 @@ export default function InteractiveProductTour() {
             <p className="font-bold text-gray-300">
               You've experienced the core features of LearnFlow. Ready to explore more?
             </p>
-            <button className="w-full bg-[#ccff00] text-black border-4 border-[#ccff00] px-8 py-4 font-black uppercase text-lg hover:bg-black hover:text-[#ccff00] transition-all">
+            <button
+              onClick={() => router.push('/demo')}
+              className="w-full bg-[#ccff00] text-black border-4 border-[#ccff00] px-8 py-4 font-black uppercase text-lg hover:bg-black hover:text-[#ccff00] transition-all cursor-pointer"
+            >
               Try Full Demo →
             </button>
           </div>

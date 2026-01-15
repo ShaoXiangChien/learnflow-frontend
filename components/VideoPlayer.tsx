@@ -27,9 +27,12 @@ export default function VideoPlayer({ video, onTimeUpdate, onEnded }: VideoPlaye
     };
 
     const handleEnded = () => {
-      setIsPlaying(false);
-      setShowPlayButton(true);
-      onEnded();
+      // Only trigger onEnded if video actually reached the end
+      if (Math.abs(videoElement.currentTime - videoElement.duration) < 1) {
+        setIsPlaying(false);
+        setShowPlayButton(true);
+        onEnded();
+      }
     };
 
     const handlePlay = () => {
