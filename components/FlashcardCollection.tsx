@@ -27,11 +27,11 @@ export default function FlashcardCollection() {
       {/* Modal */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="bg-black border-4 border-[#ccff00] p-8 max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl"
+            className="bg-black border-4 border-[#ccff00] p-8 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
