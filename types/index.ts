@@ -14,18 +14,6 @@ export interface Subtitle {
   words: Word[];
 }
 
-export interface Video {
-  id: string;
-  title: string;
-  url: string;
-  thumbnail?: string;
-  language: string;
-  difficulty: string;
-  duration: number;
-  description?: string;
-  subtitles: Subtitle[];
-}
-
 export interface QuizQuestion {
   question: string;
   options: string[];
@@ -36,6 +24,19 @@ export interface QuizQuestion {
 export interface Quiz {
   video_id: string;
   questions: QuizQuestion[];
+}
+
+export interface Video {
+  id: string;
+  title: string;
+  url: string;
+  thumbnail?: string;
+  language: string;
+  difficulty: string;
+  duration: number;
+  description?: string;
+  subtitles: Subtitle[];
+  quiz?: Quiz;
 }
 
 export interface FlashcardWord extends Word {

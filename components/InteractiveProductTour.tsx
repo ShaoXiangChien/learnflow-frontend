@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Word, Video } from '@/types';
-import { getVideos } from '@/lib/api';
+import { useState, useEffect } from "react";
+import { Word, Video } from "@/types";
+import { getVideos } from "@/lib/api";
+import VideoPlayer from "./VideoPlayer";
 
 interface TourStep {
   id: number;
@@ -13,71 +13,89 @@ interface TourStep {
   words: Word[];
 }
 
+interface InteractiveProductTourProps {
+  onTryDemo?: () => void;
+}
+
 const defaultTourData: TourStep = {
   id: 1,
-  title: 'Learn Spanish Through Real Videos',
-  subtitle: 'Hola, ¿cómo estás? Me llamo Juan.',
-  subtitleTranslation: 'Hello, how are you? My name is Juan.',
+  title: "Learn Spanish Through Real Videos",
+  subtitle: "Hola, ¿cómo estás? Me llamo Juan.",
+  subtitleTranslation: "Hello, how are you? My name is Juan.",
   words: [
     {
-      word: 'Hola',
-      translation: 'Hello',
-      pronunciation: 'OH-lah',
-      definition: 'A greeting used to say hello',
-      example: 'Hola, buenos días.',
+      word: "Hola",
+      translation: "Hello",
+      pronunciation: "OH-lah",
+      definition: "A greeting used to say hello",
+      example: "Hola, buenos días.",
     },
     {
-      word: 'cómo',
-      translation: 'how',
-      pronunciation: 'KOH-moh',
-      definition: 'In what way or manner',
-      example: '¿Cómo te llamas?',
+      word: "cómo",
+      translation: "how",
+      pronunciation: "KOH-moh",
+      definition: "In what way or manner",
+      example: "¿Cómo te llamas?",
     },
     {
-      word: 'estás',
-      translation: 'are you',
-      pronunciation: 'es-TAHS',
-      definition: 'Second person singular of estar (to be)',
-      example: '¿Cómo estás hoy?',
+      word: "estás",
+      translation: "are you",
+      pronunciation: "es-TAHS",
+      definition: "Second person singular of estar (to be)",
+      example: "¿Cómo estás hoy?",
     },
     {
-      word: 'Me',
-      translation: 'Me',
-      pronunciation: 'meh',
-      definition: 'First person singular indirect object pronoun',
-      example: 'Me gusta la música.',
+      word: "Me",
+      translation: "Me",
+      pronunciation: "meh",
+      definition: "First person singular indirect object pronoun",
+      example: "Me gusta la música.",
     },
     {
-      word: 'llamo',
-      translation: 'call',
-      pronunciation: 'YAH-moh',
-      definition: 'First person singular of llamar (to call/to be named)',
-      example: 'Me llamo María.',
+      word: "llamo",
+      translation: "call",
+      pronunciation: "YAH-moh",
+      definition: "First person singular of llamar (to call/to be named)",
+      example: "Me llamo María.",
     },
     {
-      word: 'Juan',
-      translation: 'John',
-      pronunciation: 'HWAN',
-      definition: 'A common Spanish male name',
-      example: 'Juan es mi amigo.',
+      word: "Juan",
+      translation: "John",
+      pronunciation: "HWAN",
+      definition: "A common Spanish male name",
+      example: "Juan es mi amigo.",
     },
   ],
 };
 
-type TourState = 'idle' | 'playing' | 'word-selected' | 'flashcard-added' | 'quiz-shown' | 'completed';
+type TourState =
+  | "idle"
+  | "playing"
+  | "word-selected"
+  | "flashcard-added"
+  | "quiz-shown"
+  | "completed";
 
-export default function InteractiveProductTour() {
-  const router = useRouter();
-  const [tourState, setTourState] = useState<TourState>('idle');
+export default function InteractiveProductTour({
+  onTryDemo,
+}: InteractiveProductTourProps) {
+  const [tourState, setTourState] = useState<TourState>("idle");
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const [showWordCard, setShowWordCard] = useState(false);
   const [showFlashcards, setShowFlashcards] = useState(false);
   const [showQuiz, setShowQuiz] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [highlightedButton, setHighlightedButton] = useState<string | null>(null);
+  const [highlightedButton, setHighlightedButton] = useState<string | null>(
+    null
+  );
   const [quizAnswered, setQuizAnswered] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [showExplanation, setShowExplanation] = useState(false);
   const [tourData, setTourData] = useState<TourStep>(defaultTourData);
   const [loading, setLoading] = useState(true);
+  const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
 
   // Load first video data on mount
   useEffect(() => {
@@ -86,6 +104,9 @@ export default function InteractiveProductTour() {
         const videos = await getVideos();
         if (videos.length > 0) {
           const firstVideo = videos[0];
+          // Store the full video object
+          setCurrentVideo(firstVideo);
+
           // Get first subtitle if available
           if (firstVideo.subtitles && firstVideo.subtitles.length > 0) {
             const firstSubtitle = firstVideo.subtitles[0];
@@ -99,7 +120,7 @@ export default function InteractiveProductTour() {
           }
         }
       } catch (error) {
-        console.error('Failed to load first video:', error);
+        console.error("Failed to load first video:", error);
       } finally {
         setLoading(false);
       }
@@ -111,38 +132,33 @@ export default function InteractiveProductTour() {
   // Get instruction text based on tour state
   const getInstruction = () => {
     switch (tourState) {
-      case 'idle':
-        return '▶️ Click the play button to start watching';
-      case 'playing':
-        return '👆 Click any word in the subtitle to see its meaning';
-      case 'word-selected':
+      case "idle":
+        return "▶️ Click the play button to start watching";
+      case "playing":
+        return "👆 Click any word in the subtitle to see its meaning";
+      case "word-selected":
         return '⭐ Click "Add to Flashcards" to save this word';
-      case 'flashcard-added':
-        return '📚 Check out your flashcard collection, then close it';
-      case 'quiz-shown':
-        return '🎯 Answer the quiz question to test your knowledge';
-      case 'completed':
-        return '🎉 You\'ve completed the tour! Ready for the full experience?';
+      case "flashcard-added":
+        return "📚 Check out your flashcard collection, then close it";
+      case "quiz-shown":
+        return "🎯 Answer the quiz question to test your knowledge";
+      case "completed":
+        return "🎉 You've completed the tour! Ready for the full experience?";
       default:
-        return '';
+        return "";
     }
-  };
-
-  const handlePlayClick = () => {
-    setIsPlaying(true);
-    setTourState('playing');
   };
 
   const handleWordClick = (word: Word) => {
     setSelectedWord(word);
     setShowWordCard(true);
-    setTourState('word-selected');
-    setHighlightedButton('add-flashcard');
+    setTourState("word-selected");
+    setHighlightedButton("add-flashcard");
   };
 
   const handleAddToFlashcards = () => {
     setShowWordCard(false);
-    setTourState('flashcard-added');
+    setTourState("flashcard-added");
     setShowFlashcards(true);
     setHighlightedButton(null);
   };
@@ -150,12 +166,18 @@ export default function InteractiveProductTour() {
   const handleCloseFlashcards = () => {
     setShowFlashcards(false);
     setShowQuiz(true);
-    setTourState('quiz-shown');
+    setTourState("quiz-shown");
   };
 
-  const handleQuizAnswer = () => {
-    setQuizAnswered(true);
-    setTourState('completed');
+  const handleQuizAnswer = (answerIndex: number) => {
+    setSelectedAnswer(answerIndex);
+    setShowExplanation(true);
+
+    // After showing explanation, mark as answered after a short delay
+    setTimeout(() => {
+      setQuizAnswered(true);
+      setTourState("completed");
+    }, 2000);
   };
 
   const renderClickableSubtitle = (text: string, words: Word[]) => {
@@ -164,10 +186,8 @@ export default function InteractiveProductTour() {
     return (
       <div className="flex flex-wrap gap-2 justify-center">
         {textWords.map((textWord, index) => {
-          const cleanWord = textWord.replace(/[.,!?;:?]/g, '').toLowerCase();
-          const wordObj = words.find(
-            (w) => w.word.toLowerCase() === cleanWord
-          );
+          const cleanWord = textWord.replace(/[.,!?;:?]/g, "").toLowerCase();
+          const wordObj = words.find((w) => w.word.toLowerCase() === cleanWord);
 
           if (wordObj) {
             return (
@@ -182,7 +202,10 @@ export default function InteractiveProductTour() {
           }
 
           return (
-            <span key={index} className="text-white px-1 font-bold text-xs sm:text-sm">
+            <span
+              key={index}
+              className="text-white px-1 font-bold text-xs sm:text-sm"
+            >
               {textWord}
             </span>
           );
@@ -213,41 +236,59 @@ export default function InteractiveProductTour() {
       {/* Main Video Card Container */}
       <div className="border-4 border-[#ccff00] bg-black p-6 space-y-4">
         {/* Title */}
-        <h3 className="text-2xl font-black uppercase text-white">{tourData.title}</h3>
+        <h3 className="text-2xl font-black uppercase text-white">
+          {tourData.title}
+        </h3>
 
-        {/* Video Preview Area */}
-        <div className="relative bg-gray-900 border-4 border-[#00ffff] aspect-video flex items-center justify-center overflow-hidden rounded-sm">
-          {/* Placeholder for video */}
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-6xl mb-4">🎬</div>
-              <p className="text-gray-400 font-bold">Video Preview</p>
-            </div>
-          </div>
+        {/* Video Player Area */}
+        <div className="relative bg-gray-900 border-4 border-[#00ffff] aspect-video overflow-hidden rounded-sm">
+          {currentVideo ? (
+            <>
+              {/* Actual Video Player */}
+              <VideoPlayer
+                video={currentVideo}
+                onTimeUpdate={(time) => {
+                  setCurrentTime(time);
+                  // Update tour state to playing when video starts
+                  if (time > 0 && tourState === "idle") {
+                    setTourState("playing");
+                    setIsPlaying(true);
+                  }
+                }}
+                onEnded={() => {
+                  setIsPlaying(false);
+                }}
+              />
 
-          {/* Play Button */}
-          <button
-            onClick={handlePlayClick}
-            className={`absolute z-20 w-20 h-20 rounded-full bg-[#ccff00] text-black flex items-center justify-center font-black text-3xl transition-all ${
-              isPlaying ? 'scale-0 opacity-0' : 'hover:scale-110 hover:bg-[#ff00ff]'
-            }`}
-          >
-            ▶
-          </button>
+              {/* Subtitle Overlay */}
+              {isPlaying && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 z-10"
+                  data-interactive
+                >
+                  <div className="space-y-2">
+                    {/* Target language (clickable) */}
+                    <div className="text-sm font-black tracking-tight">
+                      {renderClickableSubtitle(
+                        tourData.subtitle,
+                        tourData.words
+                      )}
+                    </div>
 
-          {/* Subtitle Overlay */}
-          {isPlaying && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 z-10">
-              <div className="space-y-2">
-                {/* Target language (clickable) */}
-                <div className="text-sm font-black tracking-tight">
-                  {renderClickableSubtitle(tourData.subtitle, tourData.words)}
+                    {/* Native language (translation) */}
+                    <div className="text-xs font-bold text-[#00ffff] text-center">
+                      {tourData.subtitleTranslation}
+                    </div>
+                  </div>
                 </div>
-
-                {/* Native language (translation) */}
-                <div className="text-xs font-bold text-[#00ffff] text-center">
-                  {tourData.subtitleTranslation}
-                </div>
+              )}
+            </>
+          ) : (
+            /* Loading placeholder */
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🎬</div>
+                <p className="text-gray-400 font-bold">Loading Video...</p>
               </div>
             </div>
           )}
@@ -283,18 +324,30 @@ export default function InteractiveProductTour() {
 
               <div className="space-y-2 text-sm">
                 <div>
-                  <p className="font-black uppercase text-[#00ffff] mb-1">Translation:</p>
-                  <p className="font-bold text-gray-300">{selectedWord.translation}</p>
+                  <p className="font-black uppercase text-[#00ffff] mb-1">
+                    Translation:
+                  </p>
+                  <p className="font-bold text-gray-300">
+                    {selectedWord.translation}
+                  </p>
                 </div>
 
                 <div>
-                  <p className="font-black uppercase text-[#00ffff] mb-1">Definition:</p>
-                  <p className="font-bold text-gray-300">{selectedWord.definition}</p>
+                  <p className="font-black uppercase text-[#00ffff] mb-1">
+                    Definition:
+                  </p>
+                  <p className="font-bold text-gray-300">
+                    {selectedWord.definition}
+                  </p>
                 </div>
 
                 <div>
-                  <p className="font-black uppercase text-[#00ffff] mb-1">Example:</p>
-                  <p className="font-bold text-gray-300 italic">{selectedWord.example}</p>
+                  <p className="font-black uppercase text-[#00ffff] mb-1">
+                    Example:
+                  </p>
+                  <p className="font-bold text-gray-300 italic">
+                    {selectedWord.example}
+                  </p>
                 </div>
               </div>
 
@@ -302,9 +355,9 @@ export default function InteractiveProductTour() {
               <button
                 onClick={handleAddToFlashcards}
                 className={`w-full border-4 border-[#ccff00] bg-[#ccff00] text-black py-3 px-4 font-black uppercase transition-all ${
-                  highlightedButton === 'add-flashcard'
-                    ? 'animate-pulse scale-105 shadow-lg shadow-[#ccff00]'
-                    : 'hover:bg-black hover:text-[#ccff00]'
+                  highlightedButton === "add-flashcard"
+                    ? "animate-pulse scale-105 shadow-lg shadow-[#ccff00]"
+                    : "hover:bg-black hover:text-[#ccff00]"
                 }`}
               >
                 ⭐ Add to Flashcards
@@ -314,7 +367,7 @@ export default function InteractiveProductTour() {
         )}
 
         {/* Flashcard Collection Preview */}
-        {showFlashcards && (
+        {showFlashcards && selectedWord && (
           <div className="relative">
             {/* Spotlight Effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#ff00ff] via-[#00ffff] to-[#ccff00] rounded-sm opacity-75 blur animate-pulse" />
@@ -333,11 +386,17 @@ export default function InteractiveProductTour() {
                 </button>
               </div>
 
-              {/* Sample Flashcard */}
+              {/* Actual Flashcard - Shows the word the user just added */}
               <div className="border-4 border-[#00ffff] bg-black p-4 space-y-2">
-                <p className="text-lg font-black uppercase text-[#ccff00]">Hola</p>
-                <p className="text-sm font-bold text-gray-300">Hello</p>
-                <p className="text-xs font-bold text-[#00ffff]">OH-lah</p>
+                <p className="text-lg font-black uppercase text-[#ccff00]">
+                  {selectedWord.word}
+                </p>
+                <p className="text-sm font-bold text-gray-300">
+                  {selectedWord.translation}
+                </p>
+                <p className="text-xs font-bold text-[#00ffff]">
+                  {selectedWord.pronunciation}
+                </p>
               </div>
 
               <p className="text-sm font-bold text-gray-400 text-center">
@@ -348,7 +407,7 @@ export default function InteractiveProductTour() {
         )}
 
         {/* Quiz Preview */}
-        {showQuiz && !quizAnswered && (
+        {showQuiz && !quizAnswered && currentVideo?.quiz && (
           <div className="relative">
             {/* Spotlight Effect */}
             <div className="absolute -inset-1 bg-gradient-to-r from-[#00ffff] via-[#ccff00] to-[#ff00ff] rounded-sm opacity-75 blur animate-pulse" />
@@ -359,29 +418,66 @@ export default function InteractiveProductTour() {
                 🎯 Quick Quiz
               </h4>
 
-              <p className="font-bold text-gray-300">
-                What does "Hola" mean?
-              </p>
+              {/* Current Question */}
+              {(() => {
+                const currentQuestion =
+                  currentVideo.quiz?.questions[currentQuestionIndex];
+                if (!currentQuestion) return null;
 
-              <div className="space-y-2">
-                {[
-                  { text: 'Hello', correct: true },
-                  { text: 'Goodbye', correct: false },
-                  { text: 'Thank you', correct: false },
-                ].map((option, idx) => (
-                  <button
-                    key={idx}
-                    onClick={handleQuizAnswer}
-                    className={`w-full border-4 py-2 px-4 font-black uppercase transition-all ${
-                      option.correct
-                        ? 'border-[#ccff00] bg-black text-[#ccff00] hover:bg-[#ccff00] hover:text-black'
-                        : 'border-[#ff00ff] bg-black text-[#ff00ff] hover:bg-[#ff00ff] hover:text-black'
-                    }`}
-                  >
-                    {option.text}
-                  </button>
-                ))}
-              </div>
+                return (
+                  <>
+                    <p className="font-bold text-gray-300">
+                      {currentQuestion.question}
+                    </p>
+
+                    <div className="space-y-2">
+                      {currentQuestion.options.map(
+                        (option: string, idx: number) => {
+                          const isCorrect =
+                            idx === currentQuestion.correct_answer;
+                          const isSelected = selectedAnswer === idx;
+                          const showResult = selectedAnswer !== null;
+
+                          return (
+                            <button
+                              key={idx}
+                              onClick={() =>
+                                !showResult && handleQuizAnswer(idx)
+                              }
+                              disabled={showResult}
+                              className={`w-full border-4 py-2 px-4 font-black uppercase transition-all ${
+                                showResult
+                                  ? isCorrect
+                                    ? "border-[#ccff00] bg-[#ccff00] text-black"
+                                    : isSelected
+                                    ? "border-[#ff00ff] bg-[#ff00ff] text-black opacity-50"
+                                    : "border-gray-600 bg-black text-gray-600"
+                                  : "border-[#00ffff] bg-black text-[#00ffff] hover:bg-[#00ffff] hover:text-black cursor-pointer"
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    {/* Explanation */}
+                    {showExplanation && (
+                      <div className="bg-black border-4 border-[#ccff00] p-4 space-y-2">
+                        <p className="font-black uppercase text-[#ccff00] text-sm">
+                          {selectedAnswer === currentQuestion.correct_answer
+                            ? "✅ Correct!"
+                            : "❌ Incorrect"}
+                        </p>
+                        <p className="text-sm font-bold text-gray-300">
+                          {currentQuestion.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -393,10 +489,11 @@ export default function InteractiveProductTour() {
               🎉 Amazing!
             </p>
             <p className="font-bold text-gray-300">
-              You've experienced the core features of LearnFlow. Ready to explore more?
+              You've experienced the core features of LearnFlow. Ready to
+              explore more?
             </p>
             <button
-              onClick={() => router.push('/demo')}
+              onClick={onTryDemo}
               className="w-full bg-[#ccff00] text-black border-4 border-[#ccff00] px-8 py-4 font-black uppercase text-lg hover:bg-black hover:text-[#ccff00] transition-all cursor-pointer"
             >
               Try Full Demo →
@@ -408,39 +505,53 @@ export default function InteractiveProductTour() {
       {/* Progress Indicator */}
       <div className="flex gap-2 justify-center">
         {[
-          { state: 'idle', label: 'Watch' },
-          { state: 'playing', label: 'Click' },
-          { state: 'word-selected', label: 'Learn' },
-          { state: 'flashcard-added', label: 'Cards' },
-          { state: 'quiz-shown', label: 'Quiz' },
-          { state: 'completed', label: 'Done' },
+          { state: "idle", label: "Watch" },
+          { state: "playing", label: "Click" },
+          { state: "word-selected", label: "Learn" },
+          { state: "flashcard-added", label: "Cards" },
+          { state: "quiz-shown", label: "Quiz" },
+          { state: "completed", label: "Done" },
         ].map((step) => {
           const isActive = tourState === step.state;
           const isCompleted =
-            ['idle', 'playing', 'word-selected', 'flashcard-added', 'quiz-shown', 'completed'].indexOf(
-              tourState
-            ) >=
-            ['idle', 'playing', 'word-selected', 'flashcard-added', 'quiz-shown', 'completed'].indexOf(
-              step.state
-            );
+            [
+              "idle",
+              "playing",
+              "word-selected",
+              "flashcard-added",
+              "quiz-shown",
+              "completed",
+            ].indexOf(tourState) >=
+            [
+              "idle",
+              "playing",
+              "word-selected",
+              "flashcard-added",
+              "quiz-shown",
+              "completed",
+            ].indexOf(step.state);
 
           return (
             <div
               key={step.state}
-              className={`flex flex-col items-center gap-1 ${isActive ? 'scale-110' : ''}`}
+              className={`flex flex-col items-center gap-1 ${
+                isActive ? "scale-110" : ""
+              }`}
             >
               <div
                 className={`w-8 h-8 border-2 rounded-full flex items-center justify-center font-black text-xs transition-all ${
                   isActive
-                    ? 'bg-[#ccff00] border-[#ccff00] text-black'
+                    ? "bg-[#ccff00] border-[#ccff00] text-black"
                     : isCompleted
-                    ? 'bg-[#ff00ff] border-[#ff00ff] text-white'
-                    : 'bg-black border-[#ccff00] text-[#ccff00]'
+                    ? "bg-[#ff00ff] border-[#ff00ff] text-white"
+                    : "bg-black border-[#ccff00] text-[#ccff00]"
                 }`}
               >
-                {isCompleted && !isActive ? '✓' : step.label.charAt(0)}
+                {isCompleted && !isActive ? "✓" : step.label.charAt(0)}
               </div>
-              <span className="text-xs font-bold text-gray-400">{step.label}</span>
+              <span className="text-xs font-bold text-gray-400">
+                {step.label}
+              </span>
             </div>
           );
         })}
